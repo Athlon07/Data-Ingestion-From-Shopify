@@ -1,15 +1,63 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Tenant {
+  id          String     @id @default(cuid())
+  name        String
+  shopDomain  String     @unique
+  accessToken String
+  createdAt   DateTime   @default(now())
+  customers   Customer[]
+  products    Product[]
+  orders      Order[]
+}
+
+model Customer {
+  id         String   @id @default(cuid())
+  shopifyId  String   @unique
+  email      String?
+  firstName  String?
+  lastName   String?
+  totalSpent Decimal  @default(0)
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  tenantId   String
+  createdAt  DateTime @default(now())
+}
+
+model Product {
+  id         String   @id @default(cuid())
+  shopifyId  String   @unique
+  title      String?
+  vendor     String?
+  price      Decimal?
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  tenantId   String
+  createdAt  DateTime @default(now())
+}
+
+model Order {
+  id         String   @id @default(cuid())
+  shopifyId  String   @unique
+  totalPrice Decimal?
+  currency   String?
+  createdAt  DateTime @default(now())
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  tenantId   String
+  items      OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  order     Order    @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?
+  quantity  Int
+  price     Decimal?
 }
