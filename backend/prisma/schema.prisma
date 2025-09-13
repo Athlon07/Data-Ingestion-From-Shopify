@@ -6,58 +6,119 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
-
-model Tenant {
-  id          String     @id @default(cuid())
-  name        String
-  shopDomain  String     @unique
-  accessToken String
-  createdAt   DateTime   @default(now())
-  customers   Customer[]
-  products    Product[]
-  orders      Order[]
-}
-
 model Customer {
-  id         String   @id @default(cuid())
-  shopifyId  String   @unique
-  email      String?
-  firstName  String?
-  lastName   String?
-  totalSpent Decimal  @default(0)
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
-  tenantId   String
-  createdAt  DateTime @default(now())
+  id                         Int       @id @default(autoincrement())
+  first_name                 String
+  last_name                  String
+  email                      String    @unique
+  accepts_email_marketing    Boolean   @default(false)
+  default_address_company    String?
+  default_address_address1   String?
+  default_address_address2   String?
+  default_address_city       String?
+  default_address_province_code String?
+  default_address_country_code String?
+  default_address_zip        String?
+  default_address_phone      String?
+  phone                      String?
+  accepts_sms_marketing      Boolean   @default(false)
+  tags                       String[]
+  note                       String?
+  tax_exempt                 Boolean   @default(false)
+  orders                     Order[]
+  created_at                 DateTime  @default(now())
+  updated_at                 DateTime  @updatedAt
 }
 
 model Product {
-  id         String   @id @default(cuid())
-  shopifyId  String   @unique
-  title      String?
-  vendor     String?
-  price      Decimal?
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
-  tenantId   String
-  createdAt  DateTime @default(now())
+  id                      Int      @id @default(autoincrement())
+  handle                  String   @unique
+  title                   String
+  body_html               String?
+  vendor                  String?
+  type                    String?
+  tags                    String[]
+  published               Boolean  @default(true)
+  option1_name            String?
+  option1_value           String?
+  variant_sku             String   @unique
+  variant_price           Float
+  variant_inventory_qty   Int      @default(0)
+  variant_requires_shipping Boolean @default(true)
+  variant_taxable         Boolean  @default(true)
+  order_items             OrderItem[]
+  created_at              DateTime @default(now())
+  updated_at              DateTime @updatedAt
 }
 
 model Order {
-  id         String   @id @default(cuid())
-  shopifyId  String   @unique
-  totalPrice Decimal?
-  currency   String?
-  createdAt  DateTime @default(now())
-  tenant     Tenant   @relation(fields: [tenantId], references: [id])
-  tenantId   String
-  items      OrderItem[]
+  id                    Int        @id @default(autoincrement())
+  order_number          String     @unique
+  customer              Customer?  @relation(fields: [customer_id], references: [id])
+  customer_id           Int?
+  financial_status      String?
+  paid_at               DateTime?
+  fulfillment_status    String?
+  fulfilled_at          DateTime?
+  accepts_marketing     Boolean?
+  currency              String?
+  subtotal              Float?
+  shipping              Float?
+  taxes                 Float?
+  total                 Float?
+  discount_code         String?
+  discount_amount       Float?
+  shipping_method       String?
+  billing_name          String?
+  billing_street        String?
+  billing_address1      String?
+  billing_address2      String?
+  billing_company       String?
+  billing_city          String?
+  billing_zip           String?
+  billing_province      String?
+  billing_country       String?
+  billing_phone         String?
+  shipping_name         String?
+  shipping_street       String?
+  shipping_address1     String?
+  shipping_address2     String?
+  shipping_company      String?
+  shipping_city         String?
+  shipping_zip          String?
+  shipping_province     String?
+  shipping_country      String?
+  shipping_phone        String?
+  notes                 String?
+  payment_method        String?
+  payment_reference     String?
+  refunded_amount       Float?
+  vendor                String?
+  outstanding_balance   Float?
+  employee              String?
+  location              String?
+  device_id             String?
+  tags                  String[]
+  risk_level            String?
+  source                String?
+  lineitem_discount     Float?
+  order_items           OrderItem[]
+  created_at            DateTime   @default(now())
+  updated_at            DateTime   @updatedAt
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
-  order     Order    @relation(fields: [orderId], references: [id])
-  orderId   String
-  product   Product? @relation(fields: [productId], references: [id])
-  productId String?
-  quantity  Int
-  price     Decimal?
+  id                   Int      @id @default(autoincrement())
+  order                Order    @relation(fields: [order_id], references: [id])
+  order_id             Int
+  product              Product? @relation(fields: [product_id], references: [id])
+  product_id           Int?
+  quantity             Int
+  name                 String?
+  price                Float
+  compare_at_price     Float?
+  sku                  String?
+  requires_shipping    Boolean?
+  taxable              Boolean?
+  fulfillment_status   String?
 }
