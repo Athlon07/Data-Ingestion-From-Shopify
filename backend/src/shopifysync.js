@@ -1,5 +1,5 @@
 // backend/src/shopifySync.js
-const prisma = require('./db');
+const prisma = require('./prisma');
 const { createShopifyClient } = require('./utils/shopifyClient');
 
 async function syncProducts(tenant) {
